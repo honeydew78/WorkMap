@@ -4,7 +4,7 @@ export interface Report extends Document {
   title: string;
   content: string;
   project: mongoose.Types.ObjectId;
-  createdBy: mongoose.Types.ObjectId;
+  createdBy: mongoose.Types.ObjectId[]; // Array of members
   createdAt: Date;
 }
 
@@ -22,11 +22,11 @@ const ReportSchema: Schema<Report> = new mongoose.Schema({
     ref: 'Project',
     required: true,
   },
-  createdBy: {
+  createdBy: [{ // Array of members
     type: Schema.Types.ObjectId,
     ref: 'Member',
     required: true,
-  },
+  }],
   createdAt: {
     type: Date,
     default: Date.now,

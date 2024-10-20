@@ -4,7 +4,8 @@ export interface Task extends Document {
   title: string;
   description: string;
   status: 'Todo' | 'In Progress' | 'Completed';
-  assignedTo: mongoose.Types.ObjectId;
+  assignedTo: mongoose.Types.ObjectId[]; // Array of members
+  assignedBy: mongoose.Types.ObjectId[]; // Array of project leaders
   project: mongoose.Types.ObjectId;
   dueDate: Date;
 }
@@ -23,11 +24,16 @@ const TaskSchema: Schema<Task> = new mongoose.Schema({
     enum: ['Todo', 'In Progress', 'Completed'],
     default: 'Todo',
   },
-  assignedTo: {
+  assignedTo: [{ // Array of members
     type: Schema.Types.ObjectId,
     ref: 'Member',
     required: true,
-  },
+  }],
+  assignedBy: [{ // Array of project leaders
+    type: Schema.Types.ObjectId,
+    ref: 'Member',
+    required: true,
+  }],
   project: {
     type: Schema.Types.ObjectId,
     ref: 'Project',

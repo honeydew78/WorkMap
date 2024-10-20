@@ -5,6 +5,7 @@ export interface Project extends Document {
   description: string;
   members: mongoose.Types.ObjectId[];
   tasks: mongoose.Types.ObjectId[];
+  projectLeads: mongoose.Types.ObjectId[]; // Added project leads
 }
 
 const ProjectSchema: Schema<Project> = new mongoose.Schema({
@@ -18,6 +19,7 @@ const ProjectSchema: Schema<Project> = new mongoose.Schema({
   },
   members: [{ type: Schema.Types.ObjectId, ref: 'Member' }],
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
+  projectLeads: [{ type: Schema.Types.ObjectId, ref: 'Member' }], // Multiple project leads
 });
 
 const ProjectModel =
