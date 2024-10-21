@@ -1,11 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { Report } from './Report'; // Assuming Report is in a separate file
 
 export interface Project extends Document {
   name: string;
   description: string;
   members: mongoose.Types.ObjectId[];
   tasks: mongoose.Types.ObjectId[];
-  projectLeads: mongoose.Types.ObjectId[]; // Added project leads
+  projectLeads: mongoose.Types.ObjectId[];
+  reports: mongoose.Types.ObjectId[]; // Array of Report IDs
 }
 
 const ProjectSchema: Schema<Project> = new mongoose.Schema({
@@ -20,6 +22,7 @@ const ProjectSchema: Schema<Project> = new mongoose.Schema({
   members: [{ type: Schema.Types.ObjectId, ref: 'Member' }],
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
   projectLeads: [{ type: Schema.Types.ObjectId, ref: 'Member' }], // Multiple project leads
+  reports: [{ type: Schema.Types.ObjectId, ref: 'Report' }], // Referencing the Report model
 });
 
 const ProjectModel =

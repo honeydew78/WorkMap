@@ -56,7 +56,7 @@ const UserSchema: Schema<User> = new mongoose.Schema({
   },
   isVerified: {
     type: Boolean,
-    default: true,
+    default: true,         // change
   },
   isAcceptingMessages: {
     type: Boolean,
