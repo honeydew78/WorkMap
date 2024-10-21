@@ -1,6 +1,6 @@
 import dbConnect from '@/lib/dbConnect';
 import ProjectModel from '@/model/Project';
-import MemberModel from '@/model/Member';
+import mongoose from 'mongoose'; 
 
 export async function GET(request: Request) {
   await dbConnect();
@@ -20,11 +20,12 @@ export async function GET(request: Request) {
       );
     }
 
+    // Step 1: Find the project by ID
     const project = await ProjectModel.findById(projectId)
-      .populate('members', '_id name email')  // Populating members for better response
-      .populate('projectLeads', '_id name email')  // Populating project leads
-      .populate('tasks', '_id title')  // Populating tasks
-      .populate('reports', '_id content');  // Populating reports
+      .populate('members', '_id name email')  
+      .populate('projectLeads', '_id name email')  
+      .populate('tasks', '_id title') 
+      .populate('reports', '_id content'); 
 
     if (!project) {
       return new Response(
@@ -36,9 +37,8 @@ export async function GET(request: Request) {
       );
     }
 
-    // Step 2: Verify if the user is either a project member or a project lead
     const isMember = project.members.some(memberId => memberId.toString() === userId);
-    const isProjectLead = project.projectLeads.includes(userId);
+    const isProjectLead = project.projectLeads.some((lead: mongoose.Types.ObjectId) => lead.toString() === userId); // Use .some() to check leads
 
     if (!isMember && !isProjectLead) {
       return new Response(
@@ -50,7 +50,6 @@ export async function GET(request: Request) {
       );
     }
 
-    // Step 3: Return project details
     return new Response(
       JSON.stringify({
         success: true,
