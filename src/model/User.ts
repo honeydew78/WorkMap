@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+// Message Interface and Schema remain the same
 export interface Message extends Document {
   content: string;
   createdAt: Date;
@@ -17,18 +18,25 @@ const MessageSchema: Schema<Message> = new mongoose.Schema({
   },
 });
 
+// Updated User Interface without the 'role' field
 export interface User extends Document {
   username: string;
   email: string;
   password: string;
   verifyCode: string;
-  verifyCodeExpiry: Date; 
+  verifyCodeExpiry: Date;
   isVerified: boolean;
   isAcceptingMessages: boolean;
   messages: Message[];
+  
+  // Member fields (except 'role') added to User
+  name: string;
+  isActive: boolean;
+  projects: mongoose.Types.ObjectId[];
+  tasks: mongoose.Types.ObjectId[];
 }
 
-// Updated User schema
+// Updated User Schema without the 'role' field
 const UserSchema: Schema<User> = new mongoose.Schema({
   username: {
     type: String,
@@ -56,13 +64,25 @@ const UserSchema: Schema<User> = new mongoose.Schema({
   },
   isVerified: {
     type: Boolean,
-    default: true,         // change
+    default: true,
   },
   isAcceptingMessages: {
     type: Boolean,
     default: true,
   },
   messages: [MessageSchema],
+
+  // Member fields 
+  name: {
+    type: String,
+    required: [true, 'Name is required'],
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  projects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
+  tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
 });
 
 const UserModel =

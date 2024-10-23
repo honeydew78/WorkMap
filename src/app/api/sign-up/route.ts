@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     const existingUserByEmail = await UserModel.findOne({ email });
     let verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
 
+    let user;
     if (existingUserByEmail) {
       if (existingUserByEmail.isVerified) {
         return Response.json(
@@ -42,6 +43,7 @@ export async function POST(request: Request) {
         existingUserByEmail.verifyCode = verifyCode;
         existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
         await existingUserByEmail.save();
+        user = existingUserByEmail;
       }
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -57,9 +59,14 @@ export async function POST(request: Request) {
         isVerified: false,
         isAcceptingMessages: true,
         messages: [],
+        name: username, // Username used for 'name'
+        isActive: true,
+        projects: [],
+        tasks: [],
       });
 
       await newUser.save();
+      user = newUser;
     }
 
     // Send verification email
@@ -77,6 +84,10 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    // Update user to no longer accept messages
+    user.isAcceptingMessages = false;
+    await user.save();
 
     return Response.json(
       {

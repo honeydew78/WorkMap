@@ -26,12 +26,12 @@ const TaskSchema: Schema<Task> = new mongoose.Schema({
   },
   assignedTo: [{ // Array of members
     type: Schema.Types.ObjectId,
-    ref: 'Member',
+    ref: 'User',
     required: true,
   }],
   assignedBy: [{ // Array of project leaders
     type: Schema.Types.ObjectId,
-    ref: 'Member',
+    ref: 'User',
     required: true,
   }],
   project: {

@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { Report } from './Report'; // Assuming Report is in a separate file
+// import ReportModel from './Report';
 
 export interface Project extends Document {
   name: string;
@@ -19,9 +20,9 @@ const ProjectSchema: Schema<Project> = new mongoose.Schema({
     type: String,
     required: [true, 'Description is required'],
   },
-  members: [{ type: Schema.Types.ObjectId, ref: 'Member' }],
+  members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
-  projectLeads: [{ type: Schema.Types.ObjectId, ref: 'Member' }], // Multiple project leads
+  projectLeads: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Multiple project leads
   reports: [{ type: Schema.Types.ObjectId, ref: 'Report' }], // Referencing the Report model
 });
 

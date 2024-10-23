@@ -1,53 +1,42 @@
 import dbConnect from '@/lib/dbConnect';
 import ProjectModel from '@/model/Project';
-import { POST as convertUserToMember } from '@/app/api/user-to-member/route';
+import UserModel from '@/model/User';
 
 export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const { name, description, members, tasks, creatorId, role } = await request.json();
+    const { name, description, members, tasks, creatorId } = await request.json();
 
-    if (!creatorId || !role) {
+    if (!creatorId) {
       return new Response(
         JSON.stringify({
           success: false,
-          message: 'Creator ID and role are required.',
+          message: 'Creator ID is required.',
         }),
         { status: 400 }
       );
     }
 
-    const conversionRequest = new Request('', {
-      method: 'POST',
-      body: JSON.stringify({
-        userId: creatorId,
-        role: role,
-      }),
-    });
-
-    const conversionResponse = await convertUserToMember(conversionRequest);
-    const conversionResult = await conversionResponse.json();
-
-    if (!conversionResult.success) {
+    // Find the creator by their user ID
+    const creator = await UserModel.findById(creatorId);
+    if (!creator) {
       return new Response(
         JSON.stringify({
           success: false,
-          message: conversionResult.message,
+          message: 'Creator not found.',
         }),
-        { status: 400 }
+        { status: 404 }
       );
     }
-
-    const creatorAsMember = conversionResult.member;
 
     const newProject = new ProjectModel({
       name,
       description,
-      members: members ? [...members, creatorAsMember._id] : [creatorAsMember._id], 
-      tasks: tasks || [], 
-      projectLeads: [creatorAsMember._id], 
-      reports: [], 
+      members: members ? [...members, creator._id] : [creator._id], // Add the creator to the project members
+      tasks: tasks || [], // Set tasks if provided
+      projectLeads: [creator._id], // Set the creator as the project lead
+      reports: [], // Initialize with an empty reports array
     });
 
     await newProject.save();
