@@ -1,12 +1,28 @@
-import { Request, Response } from 'express';
+import dbConnect from '@/lib/dbConnect';
 import ProjectModel from '@/model/Project';
+import mongoose from 'mongoose';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth/[...nextauth]/options';
 
-import { AuthenticatedRequest } from '../middleware/authMiddleware'; // Assuming you have an auth middleware
+export async function GET(request: Request) {
+  await dbConnect();
+  
+  // Get session and user details
+  const session = await getServerSession(authOptions);
+  const _user = session?.user;
+//   console.log(_user);
 
-export const getAllProjects = async (req: AuthenticatedRequest, res: Response) => {
+  if (!session || !_user) {
+    return Response.json(
+      { success: false, message: 'Not authenticated' },
+      { status: 401 }
+    );
+  }
+
+  const userId = new mongoose.Types.ObjectId(_user._id);
+  // console.log(userId)
+
   try {
-    const userId = req.user.id; // Get logged-in user ID from auth middleware
-
     // Fetch projects where the user is a team lead, member, or assigned to any task
     const projects = await ProjectModel.find({
       $or: [
@@ -15,12 +31,19 @@ export const getAllProjects = async (req: AuthenticatedRequest, res: Response) =
         { 'tasks.assignedTo': userId }
       ]
     })
-      .populate('teamLeads', 'username email') // Populate team leads
-      .populate('members', 'username email') // Populate members
-      .populate('tasks.assignedTo', 'username email'); // Populate assigned users in tasks
+      .populate('teamLeads', 'username email')
+      .populate('members', 'username email')
+      .populate('tasks.assignedTo', 'username email');
 
-    res.status(200).json({ success: true, projects });
+    return Response.json(
+      { success: true, projects },
+      { status: 200 }
+    );
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error', error });
+    console.error('An unexpected error occurred:', error);
+    return Response.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
-};
+}

@@ -7,14 +7,14 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
 import { Project } from '@/model/Project'; 
-import { Task } from '@/model/Task'; 
+// import { Task } from '@/model/Task'; 
 import axios from 'axios';
 import { Loader2, RefreshCcw } from 'lucide-react';
 import { Sidebar } from '@/components/ui/sidebar';
 
 function UserDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  // const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const { toast } = useToast();
@@ -38,26 +38,26 @@ function UserDashboard() {
   };
 
   // Fetch active tasks
-  const fetchTasks = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get('/api/tasks');
-      setTasks(response.data.tasks || []);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch tasks',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const fetchTasks = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await axios.get('/api/tasks');
+  //     setTasks(response.data.tasks || []);
+  //   } catch (error) {
+  //     toast({
+  //       title: 'Error',
+  //       description: 'Failed to fetch tasks',
+  //       variant: 'destructive',
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     if (!session || !session.user) return;
     fetchProjects();
-    fetchTasks();
+    // fetchTasks();
   }, [session]);
 
   return (
@@ -88,7 +88,7 @@ function UserDashboard() {
         </section>
 
         {/* Active Tasks */}
-        <section className="mb-8">
+        {/* <section className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Active Tasks</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {isLoading ? (
@@ -104,7 +104,7 @@ function UserDashboard() {
               <p>No active tasks.</p>
             )}
           </div>
-        </section>
+        </section> */}
 
         <Separator />
 
@@ -114,7 +114,7 @@ function UserDashboard() {
           variant="outline"
           onClick={() => {
             fetchProjects();
-            fetchTasks();
+            // fetchTasks();
           }}
         >
           {isLoading ? (

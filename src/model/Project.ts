@@ -21,8 +21,8 @@ const TaskSchema: Schema<Task> = new mongoose.Schema({
   status: {
     type: String,
     enum: ['active', 'completed'],
-    default: 'active' // Default task status
-  }
+    default: 'active', // Default task status
+  },
 });
 
 const ProjectSchema: Schema<Project> = new mongoose.Schema({
@@ -35,13 +35,13 @@ const ProjectSchema: Schema<Project> = new mongoose.Schema({
     enum: ['active', 'completed'],
     default: 'active', // Default status is active
   },
-  tasks: [TaskSchema] // Array of tasks inside the project
+  tasks: [TaskSchema], // Array of tasks inside the project
 });
 
 // Middleware to update project status when tasks are updated
 ProjectSchema.pre('save', function (next) {
   const project = this as Project;
-  if (project.tasks.length > 0 && project.tasks.every(task => task.status === 'completed')) {
+  if (project.tasks.length > 0 && project.tasks.every((task) => task.status === 'completed')) {
     project.status = 'completed';
   } else {
     project.status = 'active';
@@ -49,5 +49,6 @@ ProjectSchema.pre('save', function (next) {
   next();
 });
 
-const ProjectModel = mongoose.model<Project>('Project', ProjectSchema);
+// Prevent OverwriteModelError
+const ProjectModel = mongoose.models.Project || mongoose.model<Project>('Project', ProjectSchema);
 export default ProjectModel;
