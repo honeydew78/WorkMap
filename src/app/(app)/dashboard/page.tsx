@@ -24,7 +24,7 @@ function UserDashboard() {
   const fetchProjects = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/projects');
+      const response = await axios.get('/api/get-all-projects');
       setProjects(response.data.projects || []);
     } catch (error) {
       toast({
@@ -63,7 +63,7 @@ function UserDashboard() {
   return (
     <div className="flex">
       {/* Sidebar */}
-      <Sidebar />
+      {/* <Sidebar /> */}
 
       {/* Main content */}
       <div className="flex-grow my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">

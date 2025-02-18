@@ -1,33 +1,53 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { Report } from './Report'; // Assuming Report is in a separate file
-// import ReportModel from './Report';
+
+export interface Task extends Document {
+  name: string;
+  assignedTo: mongoose.Types.ObjectId[]; // Users assigned to this task
+  status: 'active' | 'completed'; // Task status
+}
 
 export interface Project extends Document {
   name: string;
   description: string;
-  members: mongoose.Types.ObjectId[];
-  tasks: mongoose.Types.ObjectId[];
-  projectLeads: mongoose.Types.ObjectId[];
-  reports: mongoose.Types.ObjectId[]; // Array of Report IDs
+  teamLeads: mongoose.Types.ObjectId[]; // Multiple Team Leads
+  members: mongoose.Types.ObjectId[]; // Multiple Members
+  status: 'active' | 'completed'; // Project status
+  tasks: Task[]; // List of tasks
 }
 
-const ProjectSchema: Schema<Project> = new mongoose.Schema({
-  name: {
+const TaskSchema: Schema<Task> = new mongoose.Schema({
+  name: { type: String, required: true },
+  assignedTo: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Users assigned to this task
+  status: {
     type: String,
-    required: [true, 'Project name is required'],
-  },
-  description: {
-    type: String,
-    required: [true, 'Description is required'],
-  },
-  members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  tasks: [{ type: Schema.Types.ObjectId, ref: 'Task' }],
-  projectLeads: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Multiple project leads
-  reports: [{ type: Schema.Types.ObjectId, ref: 'Report' }], // Referencing the Report model
+    enum: ['active', 'completed'],
+    default: 'active' // Default task status
+  }
 });
 
-const ProjectModel =
-  (mongoose.models.Project as mongoose.Model<Project>) ||
-  mongoose.model<Project>('Project', ProjectSchema);
+const ProjectSchema: Schema<Project> = new mongoose.Schema({
+  name: { type: String, required: true, unique: true },
+  description: { type: String },
+  teamLeads: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Multiple team leads
+  members: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Multiple members
+  status: {
+    type: String,
+    enum: ['active', 'completed'],
+    default: 'active', // Default status is active
+  },
+  tasks: [TaskSchema] // Array of tasks inside the project
+});
 
+// Middleware to update project status when tasks are updated
+ProjectSchema.pre('save', function (next) {
+  const project = this as Project;
+  if (project.tasks.length > 0 && project.tasks.every(task => task.status === 'completed')) {
+    project.status = 'completed';
+  } else {
+    project.status = 'active';
+  }
+  next();
+});
+
+const ProjectModel = mongoose.model<Project>('Project', ProjectSchema);
 export default ProjectModel;
